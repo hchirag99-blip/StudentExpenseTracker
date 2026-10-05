@@ -1,639 +1,201 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>SpendWise — Student Expense Tracker</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap"
-        rel="stylesheet">
-
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-    <script>
-        const savedTheme = localStorage.getItem("spendwise-theme");
-
-        if (savedTheme === "dark") {
-            document.documentElement.classList.add("dark-mode");
-        }
-    </script>
 </head>
 
 <body>
-
-    <div class="ambient ambient-one"></div>
-    <div class="ambient ambient-two"></div>
-
-    <main class="app-shell">
-
-        <!-- HEADER -->
-        <header class="topbar">
-
-            <div class="brand">
-
-                <div class="brand-mark">
-                    <span>₹</span>
-                </div>
-
-                <div class="brand-copy">
-                    <h1>SpendWise</h1>
-                    <p>Student Expense Tracker</p>
-                </div>
-
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand"><span class="logo">S</span>
+                <div><b>SpendWise</b><small>Student finance</small></div>
             </div>
-
-
-            <div class="header-actions">
-
-                <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-
-                    <span class="theme-sun">☀</span>
-                    <span class="theme-moon">☾</span>
-
-                    <span class="toggle-knob"></span>
-
-                </button>
-
-
-                <div class="month-pill">
-
-                    <span class="status-dot"></span>
-
-                    <div>
-                        <small>TRACKING</small>
-                        <strong>October 2026</strong>
-                    </div>
-
-                </div>
-
+            <nav>
+                <a class="active" href="#overview">⌂ <span>Overview</span></a>
+                <a href="#add">＋ <span>Add Expense</span></a>
+                <a href="#analytics">◒ <span>Analytics</span></a>
+                <a href="#transactions">≡ <span>Transactions</span></a>
+            </nav>
+            <div class="side-tip"><span>SpendWise</span><b>Spend smarter.</b>
+                <p>Small decisions add up.</p>
             </div>
+        </aside>
 
-        </header>
-
-
-        <!-- HERO -->
-        <section class="hero">
-
-            <div class="hero-copy">
-
-                <span class="eyebrow">
-                    YOUR MONEY. YOUR CONTROL.
-                </span>
-
-                <h2>
-                    Spend smarter.
-                    <span>Live better.</span>
-                </h2>
-
-                <p>
-                    Keep your student finances organized, understand your spending,
-                    and stay comfortably inside your budget.
-                </p>
-
-            </div>
-
-
-            <div class="hero-orb">
-
-                <div class="orb-inner">
-                    <span>₹</span>
+        <main>
+            <header class="topbar">
+                <div><label>PERSONAL FINANCE</label>
+                    <h1 id="overview">Good to see you.</h1>
+                    <p>Keep your student spending under control.</p>
                 </div>
+                <div class="actions"><span class="month">October 2026</span><button id="theme">☼ Light</button></div>
+            </header>
 
-            </div>
+            {% set usage = (total_spent / budget * 100) if budget > 0 else 0 %}
+            {% set bar = [usage,100]|min %}
 
-        </section>
-
-
-        <!-- SUMMARY -->
-        <section class="summary-grid">
-
-            <div class="summary-card">
-
-                <div class="card-shine"></div>
-
-                <div class="summary-top">
-
-                    <span>MONTHLY BUDGET</span>
-
-                    <div class="mini-icon">
-                        ₹
+            <section class="hero-grid">
+                <div class="hero">
+                    <div class="hero-head">
+                        <div><label>MONTHLY BUDGET</label>
+                            <h2>₹{{ "%.0f"|format(budget) }}</h2>
+                        </div><span class="hero-icon">₹</span>
                     </div>
-
+                    <div class="meter">
+                        <div class="meter-top"><span>Budget used</span><b>{{ "%.0f"|format(usage) }}%</b></div>
+                        <div class="track"><i style="width:{{ bar }}%"></i></div>
+                        <div class="meter-bottom"><span>₹{{ "%.0f"|format(total_spent) }} spent</span><span>₹{{
+                                "%.0f"|format(remaining if remaining > 0 else 0) }} available</span></div>
+                    </div>
+                    <div class="status"><i></i>
+                        {% if usage > 100 %}Budget exceeded — review your spending
+                        {% elif usage >= 90 %}Almost out of budget
+                        {% elif usage >= 70 %}Getting close to your limit
+                        {% else %}Budget is healthy{% endif %}
+                    </div>
                 </div>
-
-                <div class="summary-value">
-                    ₹{{ "%.0f"|format(budget) }}
+                <div class="stat"><span class="stat-icon">↗</span><label>TOTAL SPENT</label><strong>₹{{
+                        "%.0f"|format(total_spent) }}</strong>
+                    <p>This month's recorded expenses</p>
                 </div>
-
-                <p>Your spending limit</p>
-
-                <div class="card-line"></div>
-
-            </div>
-
-
-            <div class="summary-card">
-
-                <div class="card-shine"></div>
-
-                <div class="summary-top">
-
-                    <span>TOTAL SPENT</span>
-
-                    <div class="mini-icon">
-                        ↗
-                    </div>
-
+                <div class="stat"><span class="stat-icon">✓</span><label>REMAINING</label><strong>₹{{
+                        "%.0f"|format(remaining) }}</strong>
+                    <p>{% if remaining >= 0 %}Still available{% else %}Over your budget{% endif %}</p>
                 </div>
+            </section>
 
-                <div class="summary-value">
-                    ₹{{ "%.0f"|format(total_spent) }}
-                </div>
-
-                <p>Money you've spent</p>
-
-                <div class="card-line"></div>
-
-            </div>
-
-
-            <div class="summary-card">
-
-                <div class="card-shine"></div>
-
-                <div class="summary-top">
-
-                    <span>REMAINING</span>
-
-                    <div class="mini-icon">
-                        ✓
+            <section class="forms">
+                <div class="card" id="add">
+                    <div class="card-title">
+                        <div><label>QUICK ENTRY</label>
+                            <h3>Add an expense</h3>
+                        </div><span class="live">LIVE</span>
                     </div>
-
-                </div>
-
-                <div class="summary-value {% if remaining < 0 %}danger{% endif %}">
-                    ₹{{ "%.0f"|format(remaining) }}
-                </div>
-
-                <p>Available to spend</p>
-
-                <div class="card-line"></div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ACTIONS -->
-        <section class="action-grid">
-
-
-            <!-- ADD EXPENSE -->
-            <div class="glass-card">
-
-                <div class="section-header">
-
-                    <div>
-
-                        <span class="section-tag">
-                            QUICK ACTION
-                        </span>
-
-                        <h3>Add Expense</h3>
-
-                        <p>Record a new transaction.</p>
-
-                    </div>
-
-                    <div class="floating-icon">
-                        +
-                    </div>
-
-                </div>
-
-
-                <form action="/add" method="POST" class="expense-form">
-
-                    <label>Amount</label>
-
-                    <div class="input-wrap money-wrap">
-
-                        <span class="currency">₹</span>
-
-                        <input type="number" name="amount" placeholder="0" min="1" required>
-
-                    </div>
-
-
-                    <label>Category</label>
-
-                    <div class="input-wrap">
-
-                        <select name="category" required>
-
-                            <option value="">Choose category</option>
-
-                            <option value="Food">
-                                🍔 Food
-                            </option>
-
-                            <option value="Transport">
-                                🚌 Transport
-                            </option>
-
-                            <option value="Education">
-                                📚 Education
-                            </option>
-
-                            <option value="Entertainment">
-                                🎮 Entertainment
-                            </option>
-
-                            <option value="Shopping">
-                                🛍️ Shopping
-                            </option>
-
-                            <option value="Other">
-                                📦 Other
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <label>Description</label>
-
-                    <div class="input-wrap">
-
-                        <input type="text" name="description" placeholder="Example: College lunch" required>
-
-                    </div>
-
-
-                    <button type="submit" class="primary-button">
-                        <span>+</span>
-                        Add Expense
-                    </button>
-
-                </form>
-
-            </div>
-
-
-            <!-- BUDGET -->
-            <div class="glass-card">
-
-                <div class="section-header">
-
-                    <div>
-
-                        <span class="section-tag">
-                            BUDGET CONTROL
-                        </span>
-
-                        <h3>Monthly Budget</h3>
-
-                        <p>Adjust your monthly spending limit.</p>
-
-                    </div>
-
-                    <div class="floating-icon">
-                        ₹
-                    </div>
-
-                </div>
-
-
-                <form action="/budget" method="POST" class="expense-form">
-
-                    <label>Budget Amount</label>
-
-                    <div class="input-wrap money-wrap">
-
-                        <span class="currency">₹</span>
-
-                        <input type="number" name="budget" value="{{ budget }}" min="1" required>
-
-                    </div>
-
-
-                    <button type="submit" class="secondary-button">
-                        Update Budget
-                    </button>
-
-                </form>
-
-
-                <div class="budget-box">
-
-                    <div class="budget-heading">
-
-                        <span>Budget usage</span>
-
-                        <strong>
-
-                            {% if budget > 0 %}
-                            {{ "%.0f"|format((total_spent / budget) * 100) }}%
-                            {% else %}
-                            0%
-                            {% endif %}
-
-                        </strong>
-
-                    </div>
-
-
-                    {% if budget > 0 %}
-                    {% set budget_percent = (total_spent / budget) * 100 %}
-                    {% else %}
-                    {% set budget_percent = 0 %}
-                    {% endif %}
-
-
-                    <div class="budget-track">
-
-                        <div class="budget-fill" style="width: {{ [budget_percent, 100]|min }}%;"></div>
-
-                    </div>
-
-
-                    <div class="budget-footer">
-
-                        <span>
-                            ₹{{ "%.0f"|format(total_spent) }} spent
-                        </span>
-
-                        <span>
-                            ₹{{ "%.0f"|format(budget) }} limit
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ANALYTICS -->
-        <section class="glass-card large-card">
-
-            <div class="section-header">
-
-                <div>
-
-                    <span class="section-tag">
-                        ANALYTICS
-                    </span>
-
-                    <h3>Spending Breakdown</h3>
-
-                    <p>See where your money is going.</p>
-
-                </div>
-
-                <div class="analytics-symbol">
-                    ◒
-                </div>
-
-            </div>
-
-
-            {% if category_data %}
-
-            <div class="category-list">
-
-                {% for category in category_data %}
-
-                <div class="category-row">
-
-                    <div class="category-info">
-
-                        <div class="category-name">
-
-                            <span class="category-dot"></span>
-
-                            <strong>
-                                {{ category["category"] }}
-                            </strong>
-
+                    <form action="/add" method="POST" class="form-grid">
+                        <div><label>Amount</label>
+                            <div class="input money"><b>₹</b><input name="amount" type="number" min="0.01" step="0.01"
+                                    placeholder="0.00" required></div>
                         </div>
-
-                        <span>
-                            {{ "%.1f"|format(category["percentage"]) }}%
-                        </span>
-
-                    </div>
-
-
-                    <div class="progress-track">
-
-                        <div class="progress-fill" style="width: {{ category['percentage'] }}%;"></div>
-
-                    </div>
-
-
-                    <div class="category-bottom">
-
-                        <small>
-                            {{ "%.1f"|format(category["percentage"]) }}% of total spending
-                        </small>
-
-                        <strong>
-                            ₹{{ "%.0f"|format(category["total"]) }}
-                        </strong>
-
-                    </div>
-
+                        <div><label>Category</label><select name="category" required>
+                                <option value="" disabled selected>Select category</option>
+                                <option>Food</option>
+                                <option>Travel</option>
+                                <option>Education</option>
+                                <option>Shopping</option>
+                                <option>Entertainment</option>
+                                <option>Health</option>
+                                <option>Bills</option>
+                                <option>Other</option>
+                            </select></div>
+                        <div class="wide"><label>Description <em>(optional)</em></label><input name="description"
+                                placeholder="What was this expense for?"></div>
+                        <button class="primary wide" type="submit">Add expense <span>→</span></button>
+                    </form>
                 </div>
 
-                {% endfor %}
-
-            </div>
-
-            {% else %}
-
-            <div class="empty-state">
-
-                <div class="empty-symbol">
-                    ₹
-                </div>
-
-                <h4>No spending data yet</h4>
-
-                <p>
-                    Add your first expense to unlock your spending analytics.
-                </p>
-
-            </div>
-
-            {% endif %}
-
-        </section>
-
-
-        <!-- TRANSACTIONS -->
-        <section class="glass-card large-card">
-
-            <div class="section-header">
-
-                <div>
-
-                    <span class="section-tag">
-                        TRANSACTIONS
-                    </span>
-
-                    <h3>Recent Expenses</h3>
-
-                    <p>Your latest spending activity.</p>
-
-                </div>
-
-
-                <div class="expense-count">
-
-                    <strong>
-                        {{ expenses|length }}
-                    </strong>
-
-                    <span>
-                        records
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            {% if expenses %}
-
-            <div class="expense-list">
-
-                {% for expense in expenses %}
-
-                <div class="expense-row">
-
-                    <div class="expense-icon">
-
-                        {% if expense["category"] == "Food" %}
-                        🍔
-                        {% elif expense["category"] == "Transport" %}
-                        🚌
-                        {% elif expense["category"] == "Education" %}
-                        📚
-                        {% elif expense["category"] == "Entertainment" %}
-                        🎮
-                        {% elif expense["category"] == "Shopping" %}
-                        🛍️
-                        {% else %}
-                        📦
-                        {% endif %}
-
+                <div class="card">
+                    <div class="card-title">
+                        <div><label>CONTROL</label>
+                            <h3>Set monthly budget</h3>
+                        </div><span class="budget-symbol">₹</span>
                     </div>
-
-
-                    <div class="expense-details">
-
-                        <strong>
-                            {{ expense["description"] }}
-                        </strong>
-
-                        <span>
-
-                            {{ expense["category"] }}
-
-                            <i>•</i>
-
-                            {{ expense["date"] }}
-
-                        </span>
-
+                    <form action="/budget" method="POST" class="budget-form">
+                        <label>Monthly limit</label>
+                        <div class="budget-row">
+                            <div class="input money"><b>₹</b><input name="budget" type="number" min="1" step="0.01"
+                                    value="{{ '%.0f'|format(budget) }}" required></div><button class="secondary"
+                                type="submit">Update</button>
+                        </div>
+                    </form>
+                    <div class="info">ⓘ Your budget controls the usage meter and warning status automatically.</div>
+                    <div class="mini">
+                        <div><span>Spent</span><b>₹{{ "%.0f"|format(total_spent) }}</b></div>
+                        <div><span>Available</span><b>₹{{ "%.0f"|format(remaining) }}</b></div>
                     </div>
+                </div>
+            </section>
 
-
-                    <div class="expense-price">
-
-                        -₹{{ "%.0f"|format(expense["amount"]) }}
-
+            <section id="analytics">
+                <div class="section-head">
+                    <div><label>ANALYTICS</label>
+                        <h3>Where your money goes</h3>
+                    </div><span>{{ category_data|length }} categories</span>
+                </div>
+                {% if category_data %}
+                <div class="analytics">
+                    <div class="card breakdown">
+                        {% for c in category_data %}
+                        <div class="cat">
+                            <div class="cat-top">
+                                <div class="cat-name"><span class="cat-icon">•</span>
+                                    <div><b>{{ c.category }}</b><small>{{ "%.1f"|format(c.percentage) }}% of
+                                            spending</small></div>
+                                </div><strong>₹{{ "%.0f"|format(c.total) }}</strong>
+                            </div>
+                            <div class="cat-track"><i style="width:{{ c.percentage }}%"></i></div>
+                        </div>
+                        {% endfor %}
                     </div>
-
-
-                    <a href="/delete/{{ expense['id'] }}" class="delete-button" title="Delete expense">
-                        ×
-                    </a>
-
+                    <div class="card insight">
+                        <div class="ring" style="--p:{{ bar }}%">
+                            <div><b>{{ "%.0f"|format(usage) }}%</b><small>used</small></div>
+                        </div>
+                        <label>BUDGET HEALTH</label>
+                        <h4>{% if usage > 100 %}Time to reset the plan{% elif usage >= 90 %}Keep spending tight{% elif
+                            usage >= 70 %}Watch the next few expenses{% else %}You're on track{% endif %}</h4>
+                        <p>{% if remaining >= 0 %}₹{{ "%.0f"|format(remaining) }} remains within your monthly limit.{%
+                            else %}You are ₹{{ "%.0f"|format(remaining|abs) }} over your monthly limit.{% endif %}</p>
+                    </div>
                 </div>
-
-                {% endfor %}
-
-            </div>
-
-            {% else %}
-
-            <div class="empty-state">
-
-                <div class="empty-symbol">
-                    +
+                {% else %}
+                <div class="card empty"><span>◌</span>
+                    <h4>No spending data yet</h4>
+                    <p>Add your first expense to unlock your breakdown.</p>
                 </div>
+                {% endif %}
+            </section>
 
-                <h4>No expenses yet</h4>
+            <section id="transactions">
+                <div class="section-head">
+                    <div><label>ACTIVITY</label>
+                        <h3>Recent transactions</h3>
+                    </div><span>{{ expenses|length }} recorded</span>
+                </div>
+                <div class="card transactions">
+                    {% if expenses %}
+                    <div class="tx-head"><span>DETAIL</span><span>AMOUNT</span><span>ACTION</span></div>
+                    {% for e in expenses %}
+                    <div class="tx">
+                        <div class="tx-detail"><span class="tx-icon">•</span>
+                            <div><b>{{ e.description if e.description else e.category + " expense" }}</b><small>{{
+                                    e.category }} · {{ e.date }}</small></div>
+                        </div>
+                        <strong>₹{{ "%.2f"|format(e.amount) }}</strong>
+                        <a href="/delete/{{ e.id }}" onclick="return confirm('Delete this expense?')">Delete</a>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty"><span>＋</span>
+                        <h4>No transactions yet</h4>
+                        <p>Your recent expenses will appear here.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
 
-                <p>
-                    Your transactions will appear here.
-                </p>
+            <footer><b>SpendWise</b><span>Student Expense Tracker · Flask + SQLite</span></footer>
+        </main>
+    </div>
 
-            </div>
-
-            {% endif %}
-
-        </section>
-
-
-        <!-- FOOTER -->
-        <footer>
-
-            <div class="footer-logo">
-                SpendWise
-            </div>
-
-            <span>
-                Built for smarter student spending
-            </span>
-
-        </footer>
-
-    </main>
-
-
-    <!-- THEME SCRIPT -->
     <script>
-
-        const themeToggle = document.getElementById("themeToggle");
-
-        themeToggle.addEventListener("click", function () {
-
-            document.documentElement.classList.toggle("dark-mode");
-
-            const isDark =
-                document.documentElement.classList.contains("dark-mode");
-
-            localStorage.setItem(
-                "spendwise-theme",
-                isDark ? "dark" : "light"
-            );
-
-        });
-
+        const body = document.body, btn = document.getElementById("theme");
+        function theme(t) { body.classList.toggle("dark", t === "dark"); btn.textContent = t === "dark" ? "☾ Dark" : "☼ Light"; localStorage.setItem("spendwise-theme", t) }
+        theme(localStorage.getItem("spendwise-theme") || "light");
+        btn.onclick = () => theme(body.classList.contains("dark") ? "light" : "dark");
     </script>
-
 </body>
 
 </html>

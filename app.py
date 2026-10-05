@@ -21,7 +21,7 @@ def create_database():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             amount REAL NOT NULL,
             category TEXT NOT NULL,
-            description TEXT NOT NULL,
+            description TEXT,
             date TEXT NOT NULL
         )
     """)
@@ -108,7 +108,7 @@ def add_expense():
 
     amount = request.form["amount"]
     category = request.form["category"]
-    description = request.form["description"]
+    description = request.form.get("description", "")
 
     date = datetime.now().strftime("%d %b %Y")
 
